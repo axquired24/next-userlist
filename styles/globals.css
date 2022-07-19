@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.c__sort-wrapper {
+  @apply flex justify-between items-center cursor-pointer hover:bg-gray-200 p-4
+}

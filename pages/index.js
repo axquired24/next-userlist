@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import SearchInput from '@/components/SearchInput'
 import GenderSelect from '@/components/GenderSelect';
+import SortSvg from '@/components/icon/SortSvg';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
@@ -33,13 +34,23 @@ export default function Home() {
     const queryGenerator = {
       'seed': seedKey,
       'results': limit,
-      'gender': genderFilterParam,
       'inc': 'login,name,email,gender,registered',
-      'sortBy': sortByParam,
-      'sortOrder': isAscParam ? 'ascend' : 'descend',
-      'keyword': queryTextParam,
       'page': pageParam,
     }
+    
+    if(['male', 'female'].includes(genderFilterParam)) {
+      queryGenerator.gender = genderFilterParam
+    } // endif
+    
+    if(queryTextParam) {
+      queryGenerator.keyword = queryTextParam
+    } // endif
+    
+    if(sortByParam) {
+      queryGenerator.sortBy = sortByParam
+      queryGenerator.sortOrder = isAscParam ? 'ascend' : 'descend'
+    }
+    
     const query = Object.entries(queryGenerator).map((q) => {
       return q[0] + '=' + q[1];
     }).join('&');
@@ -49,7 +60,6 @@ export default function Home() {
     try {
       let userResponse = await fetch(apiUrl)
       userResponse = userResponse.json()
-      console.log({userResponse})
       setisFetching(false)
       return userResponse
     } catch (e) {
@@ -61,8 +71,21 @@ export default function Home() {
   }
   
   const resetFilter = async () => {
-    const userFetch = await fetchUsers({genderFilterParam:'all', sortByParam:'name', isAscParam:false, queryTextParam:null, pageParam:1})
+    const userFetch = await fetchUsers({genderFilterParam:'all', sortByParam:null, isAscParam:false, queryTextParam:null, pageParam:1})
     setUserList(userFetch.results)
+  }
+  
+  const doSort = async (column, isAsc) => {
+    const userFetch = await fetchUsers({genderFilterParam:genderFilter, sortByParam:column, isAscParam: isAsc, queryTextParam:queryText, pageParam:page})
+    setUserList(userFetch.results)
+  }
+  
+  const sortIconKind = (columnParam, isAscParam, activeColumn) => {
+    if(columnParam === activeColumn) {
+      return isAscParam ? 'ascend' : 'descend'
+    } else {
+      return null
+    }
   }
   
   useEffect(() => {
@@ -77,12 +100,24 @@ export default function Home() {
   const tableUsers = (
     <table className='w-full'>
       <tbody>
-        <tr className='grid grid-cols-8 gap-4 bg-gray-100 border-b border-gray-200 p-4 text-left'>
-          <td><span>Username</span></td>
-          <td><span>Name</span></td>
-          <td className='col-span-2'><span>Email</span></td>
-          <td><span>Gender</span></td>
-          <td className='col-span-3'><span>Registered Date</span></td>
+        <tr className='grid grid-cols-8 bg-gray-100 border-b border-gray-200 text-left'>
+          <td className="p-4"><span>Username</span></td>
+          <td className="c__sort-wrapper" onClick={() => doSort('name', !isAsc)}>
+              <span>Name</span>
+              <SortSvg activeSort={sortIconKind('name', isAsc, sortBy)} />
+          </td>
+          <td className='col-span-2 c__sort-wrapper' onClick={() => doSort('email', !isAsc)}>
+            <span>Email</span>
+            <SortSvg activeSort={sortIconKind('email', isAsc, sortBy)} />
+          </td>
+          <td className="c__sort-wrapper" onClick={() => doSort('gender', !isAsc)}>
+            <span>Gender</span>
+            <SortSvg activeSort={sortIconKind('gender', isAsc, sortBy)} />
+          </td>
+          <td className='col-span-3 c__sort-wrapper' onClick={() => doSort('registered', !isAsc)}>
+            <span>Registered Date</span>
+            <SortSvg activeSort={sortIconKind('registered', isAsc, sortBy)} />
+          </td>
         </tr>
         {
           isFetching ? loadingTable :
@@ -120,7 +155,7 @@ export default function Home() {
         
         <div className="mt-10 grid grid-cols-6 gap-4 items-end">
           <div className="col-span-2">
-            <SearchInput onSearch={(str) => fetchUsers({queryTextParam:str, pageParam:1})} /> 
+            <SearchInput onSearch={(str) => fetchUsers({queryTextParam:str, pageParam:1})} queryText={queryText} /> 
           </div>
           <div className="col-span-1">
             <GenderSelect options={genderOptions} onChangeValue={(str) => fetchUsers({genderFilterParam:str, pageParam:1})} /> 
