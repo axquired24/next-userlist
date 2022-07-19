@@ -88,6 +88,27 @@ export default function Home() {
     }
   }
   
+  const padTo2Digits = (num) => {
+    return num.toString().padStart(2, '0');
+  }
+  
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr)
+    return (
+      [
+        date.getFullYear(),
+        padTo2Digits(date.getMonth() + 1),
+        padTo2Digits(date.getDate()),
+      ].join('-') +
+      ' ' +
+      [
+        padTo2Digits(date.getHours()),
+        padTo2Digits(date.getMinutes()),
+        padTo2Digits(date.getSeconds()),
+      ].join(':')
+    );
+  }
+  
   useEffect(() => {
     resetFilter()
   }, []);
@@ -102,7 +123,7 @@ export default function Home() {
       <tbody>
         <tr className='grid grid-cols-8 bg-gray-100 border-b border-gray-200 text-left'>
           <td className="p-4"><span>Username</span></td>
-          <td className="c__sort-wrapper" onClick={() => doSort('name', !isAsc)}>
+          <td className="col-span-2 c__sort-wrapper" onClick={() => doSort('name', !isAsc)}>
               <span>Name</span>
               <SortSvg activeSort={sortIconKind('name', isAsc, sortBy)} />
           </td>
@@ -114,7 +135,7 @@ export default function Home() {
             <span>Gender</span>
             <SortSvg activeSort={sortIconKind('gender', isAsc, sortBy)} />
           </td>
-          <td className='col-span-3 c__sort-wrapper' onClick={() => doSort('registered', !isAsc)}>
+          <td className='col-span-2 c__sort-wrapper' onClick={() => doSort('registered', !isAsc)}>
             <span>Registered Date</span>
             <SortSvg activeSort={sortIconKind('registered', isAsc, sortBy)} />
           </td>
@@ -126,12 +147,12 @@ export default function Home() {
             return (
               <tr className='grid grid-cols-8' key={userIdx}>
                 <td className={defaultClass}>{u?.login?.username}</td>
-                <td className={defaultClass}>{
+                <td className={defaultClass + ' col-span-2'}>{
                   [u?.name?.first, u?.name?.last].join(' ')
                 }</td>
                 <td className={defaultClass + ' col-span-2'}>{u?.email}</td>
                 <td className={defaultClass}>{u?.gender}</td>
-                <td className={defaultClass + ' col-span-3'}>{u?.registered?.date}</td>
+                <td className={defaultClass + ' col-span-2'}>{formatDate(u?.registered?.date)}</td>
               </tr>
             )
           })
