@@ -2,6 +2,7 @@ import Head from 'next/head'
 import SearchInput from '@/components/SearchInput'
 import GenderSelect from '@/components/GenderSelect';
 import SortSvg from '@/components/icon/SortSvg';
+import Pagination from '@/components/Pagination';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
@@ -188,6 +189,10 @@ export default function Home() {
         
         <div className="mt-4">
           {tableUsers}
+        </div>
+        
+        <div className="mt-2 flex justify-end">
+          <Pagination activePage={page} pageCount={5} onPageClick={destPage => fetchUsers({pageParam: destPage})} />
         </div>
       </main>
     </div>
