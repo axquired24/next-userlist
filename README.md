@@ -5,6 +5,8 @@ Project developed with node v16.15.1 & npm 8.11.0
 
 ## How to 
 ```bash
+npm install
+
 # run on localhost:3003
 npm run dev
 
